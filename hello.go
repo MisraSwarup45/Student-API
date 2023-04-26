@@ -4,6 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+    "log"
+    "context"
+    
+
+    "go.mongodb.org/mongo-driver/mongo"
+    "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type student struct {
@@ -15,6 +21,19 @@ var students = []student{}
 
 func main() {
 
+    clientOptions := options.Client().ApplyURI("mongodb://127.0.0.1:27017")
+    client, err := mongo.Connect(context.Background(), clientOptions)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    dbErr := client.Ping(context.Background(), nil)
+    if dbErr != nil {
+        log.Fatal(dbErr)
+    }
+
+    fmt.Println("Connected to MongoDB!")
+
     handler:= func(w http.ResponseWriter, r *http.Request) {
         fmt.Fprintf(w, "Hello Swarup!")
     }
@@ -23,9 +42,10 @@ func main() {
 
 	http.HandleFunc("/students", studentsHandler)
     fmt.Println("Server is listening on port 8080...")
-	err := http.ListenAndServe(":8080", nil)
-    if err != nil {
-        panic(err)
+
+	connectionErr := http.ListenAndServe(":8080", nil)
+    if connectionErr != nil {
+        panic(connectionErr)
     }
 }
 
