@@ -14,8 +14,19 @@ type student struct {
 var students = []student{}
 
 func main() {
+
+    handler:= func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprintf(w, "Hello Swarup!")
+    }
+
+    http.HandleFunc("/", handler);
+
 	http.HandleFunc("/students", studentsHandler)
-	http.ListenAndServe(":8080", nil)
+    fmt.Println("Server is listening on port 8080...")
+	err := http.ListenAndServe(":8080", nil)
+    if err != nil {
+        panic(err)
+    }
 }
 
 func studentsHandler(w http.ResponseWriter, r *http.Request) {
@@ -38,6 +49,7 @@ func createStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	students = append(students, newStudent)
+    fmt.Println("New student added: ", newStudent)
 	w.WriteHeader(http.StatusCreated)
 }
 
